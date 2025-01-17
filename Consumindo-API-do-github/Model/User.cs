@@ -20,6 +20,6 @@ namespace Consumindo_API_do_github.Model
         public int PublicRepos { get; set; }
 
         [JsonPropertyName("repos_url")]
-        public string ReposUrl { get; set; }
+        public string? ReposUrl { get; set; }
     }
 }

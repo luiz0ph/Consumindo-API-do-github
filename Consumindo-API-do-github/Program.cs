@@ -1,17 +1,20 @@
-﻿using Consumindo_API_do_github.Model;
+﻿using Consumindo_API_do_github.Controller;
+using Consumindo_API_do_github.Model;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace Consumindo_API_do_github
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static readonly GithubController controller = new GithubController();
+
+        static async Task Main(string[] args)
         {
-            // User list
-            List<User> users = new List<User>();
-            Menu();
+            await Menu();
         }
 
-        public static void Menu()
+        public static async Task Menu()
         {
             #region Options menu
             Console.Clear();
@@ -26,7 +29,30 @@ namespace Consumindo_API_do_github
 
             // User choice
             Console.Write("Escolha: ");
-            int choice = int.Parse(Console.ReadLine()!);
+            if (int.TryParse(Console.ReadLine(), out int choice))
+            {
+                switch (choice)
+                {
+                    case 1:
+                        await controller.AddUser(await GetUsername());
+                        break;
+                    case 2:
+                        await controller.SearchUser(await GetUsername());
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Entrada inválida. Por favor, insira um número.");
+                await Menu();
+            }
+        }
+
+        public static async Task<string> GetUsername()
+        {
+            Console.Write("Nome do usuario: ");
+            string username = Console.ReadLine()!;
+            return username;
         }
     }
 }
