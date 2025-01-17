@@ -39,6 +39,21 @@ namespace Consumindo_API_do_github
                     case 2:
                         await controller.SearchUser(await GetUsername());
                         break;
+                    case 3:
+                        await controller.RepoUser(await GetUsername());
+                        break;
+                    case 4:
+                        await controller.SumAllRepo();
+                        break;
+                    case 5:
+                        await controller.ListUsers();
+                        break;
+                    case 6:
+                        Console.WriteLine("Saindo....");
+                        break;
+                    default:
+                        Console.WriteLine("Opção invalida!");
+                        break;
                 }
             }
             else

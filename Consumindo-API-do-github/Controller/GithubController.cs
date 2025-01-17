@@ -1,5 +1,6 @@
 ﻿using Consumindo_API_do_github.Model;
 using System.Net.Http;
+using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 
 namespace Consumindo_API_do_github.Controller
@@ -26,8 +27,8 @@ namespace Consumindo_API_do_github.Controller
                 // If the response is non-null
                 if (data != null)
                 {
-                    
-                    if (false)
+                    var result = await UserExists(username);
+                    if (result is User)
                     {
                         Console.WriteLine($"O usuario {username} já foi adicionado na lista!");
                         return;
@@ -55,20 +56,108 @@ namespace Consumindo_API_do_github.Controller
             }
         }
 
-        public async Task<User>? SearchUser(string username)
+        public async Task SearchUser(string username)
         {
             try
             {
-                var user = users.Where(user => user.UserName == username).ToList();
-
-                if (user.Count <= 0)
+                var res = await UserExists(username)!;
+                
+                if (!(res is User))
                 {
-                    return null;
+                    Console.WriteLine("Usuario não encontrado na lista");
                 }
                 else
                 {
-                    await ShowUser(user[0]);
-                    return user[0];
+                    await ShowUser(res);
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro: {ex}");
+                throw ex;
+            }
+            finally
+            {
+                await ReturnToMenu();
+            }
+        }
+
+        public async Task RepoUser(string username)
+        {
+            try
+            {
+                var user = await UserExists(username);
+
+                if (user is User)
+                {
+                    Console.Clear();
+                    Console.WriteLine(user.UserName);
+                    Console.WriteLine("Repositorios: ");
+
+                    var res = await client.GetStringAsync(user.ReposUrl);
+                    List<Repository> repository = JsonSerializer.Deserialize<List<Repository>>(res);
+
+                    for (int i = 0; i < Math.Min(3, repository.Count); i++)
+                    {
+                        Console.WriteLine(" ");
+                        Console.WriteLine($"Repositorio: {repository[i].Name} \n" +
+                            $"Descrição: {repository[i].Description} \n" +
+                            $"Forks: {repository[i].Forks} \n" +
+                            $"Estrelas: {repository[i].Stars} \n");
+                        Console.WriteLine("-------------------------------------------------");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro: {ex.Message}");
+                throw ex;
+            }
+            finally
+            {
+                await ReturnToMenu();
+            }
+        }
+
+        public async Task SumAllRepo()
+        {
+            try
+            {
+                int sum = 0;
+                foreach (User user in users)
+                {
+                    sum += user.PublicRepos;
+                }
+                Console.WriteLine($"A soma de todos os repositorios: {sum}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro: {ex.Message}");
+                throw ex;
+            }
+            finally
+            {
+                await ReturnToMenu();
+            }
+        }
+
+        public async Task ListUsers()
+        {
+            try
+            {
+                Console.Clear();
+                if (users.Count <= 0)
+                {
+                    Console.WriteLine("Nenhum usuario foi adicionado na lista ainda!");
+                }
+                else
+                {
+                    foreach (User user in users)
+                    {
+                        await ShowUser(user);
+                        Console.WriteLine("---------------------------------------");
+                    }
                 }
             }
             catch (Exception ex)
@@ -92,9 +181,16 @@ namespace Consumindo_API_do_github.Controller
 
         private async Task ReturnToMenu()
         {
-            Console.WriteLine($"Aperte qualquer botão para voltar ao menu inicial!");
+            Console.WriteLine($"Aperte qualquer tecla para voltar ao menu inicial!");
             Console.ReadKey(true);
             await Program.Menu(); // Return to menu
+        }
+
+        private async Task<User> UserExists(string username)
+        {
+            var res = users.Find(user => user.UserName == username);
+
+            return res!;
         }
     }
 }
