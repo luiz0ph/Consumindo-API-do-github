@@ -11,10 +11,12 @@ namespace Consumindo_API_do_github.Controller
         // User list
         List<User> users = new List<User>();
 
+        // Method to add a user to the list
         public async Task AddUser(string username)
         {
             try
             {
+                // url for request
                 string url = $"https://api.github.com/users/{username}";
 
                 // Request headers
@@ -27,6 +29,7 @@ namespace Consumindo_API_do_github.Controller
                 // If the response is non-null
                 if (data != null)
                 {
+                    // Check if the user exists in the list
                     var result = await UserExists(username);
                     if (result is User)
                     {
@@ -52,22 +55,27 @@ namespace Consumindo_API_do_github.Controller
             }
             finally
             {
+                // Return to main menu
                 await ReturnToMenu();
             }
         }
 
+        // Method to search for user in list
         public async Task SearchUser(string username)
         {
             try
             {
+                // Check if the user exists in the list
                 var res = await UserExists(username)!;
-                
+
+                // If the user is already in the list
                 if (!(res is User))
                 {
                     Console.WriteLine("Usuario não encontrado na lista");
                 }
                 else
                 {
+                    // Print user information
                     await ShowUser(res);
                 }
                 
@@ -79,18 +87,23 @@ namespace Consumindo_API_do_github.Controller
             }
             finally
             {
+                // Return to main menu
                 await ReturnToMenu();
             }
         }
 
+        // Method to list a user's top 3 repositories
         public async Task RepoUser(string username)
         {
             try
             {
+                // Check if the user exists in the list
                 var user = await UserExists(username);
 
                 if (user is User)
                 {
+                    // Show user's top 3 repositories
+
                     Console.Clear();
                     Console.WriteLine(user.UserName);
                     Console.WriteLine("Repositorios: ");
@@ -116,15 +129,20 @@ namespace Consumindo_API_do_github.Controller
             }
             finally
             {
+                // Return to main menu
                 await ReturnToMenu();
             }
         }
 
+        // Method to add all repositories of users in the list
         public async Task SumAllRepo()
         {
             try
             {
+                // Initialize the sum variable to 0
                 int sum = 0;
+
+                // For each user in the list
                 foreach (User user in users)
                 {
                     sum += user.PublicRepos;
@@ -138,23 +156,29 @@ namespace Consumindo_API_do_github.Controller
             }
             finally
             {
+                // Return to main menu
                 await ReturnToMenu();
             }
         }
 
+        // Method to list all users
         public async Task ListUsers()
         {
             try
             {
                 Console.Clear();
+
+                // If no user has been added to the list
                 if (users.Count <= 0)
                 {
                     Console.WriteLine("Nenhum usuario foi adicionado na lista ainda!");
                 }
                 else
                 {
+                    // Display each user in the list
                     foreach (User user in users)
                     {
+                        // Print user information
                         await ShowUser(user);
                         Console.WriteLine("---------------------------------------");
                     }
@@ -167,10 +191,12 @@ namespace Consumindo_API_do_github.Controller
             }
             finally
             {
+                // Return to main menu
                 await ReturnToMenu();
             }
         }
 
+        // Method to display user information
         private async Task ShowUser(User user)
         {
             Console.WriteLine($"Id - {user.Id} \n" +
@@ -179,6 +205,7 @@ namespace Consumindo_API_do_github.Controller
                 $"Bio - {user.Bio} \n");
         }
 
+        // Method to return to the main menu
         private async Task ReturnToMenu()
         {
             Console.WriteLine($"Aperte qualquer tecla para voltar ao menu inicial!");
@@ -186,6 +213,7 @@ namespace Consumindo_API_do_github.Controller
             await Program.Menu(); // Return to menu
         }
 
+        // Method to check if a user exists
         private async Task<User> UserExists(string username)
         {
             var res = users.Find(user => user.UserName == username);

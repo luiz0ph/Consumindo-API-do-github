@@ -11,6 +11,7 @@ namespace Consumindo_API_do_github
 
         static async Task Main(string[] args)
         {
+            // Application initialization
             await Menu();
         }
 
@@ -33,24 +34,31 @@ namespace Consumindo_API_do_github
             {
                 switch (choice)
                 {
+                    // Add new user to list
                     case 1:
                         await controller.AddUser(await GetUsername());
                         break;
+                    // Search for a user in the list
                     case 2:
                         await controller.SearchUser(await GetUsername());
                         break;
+                    // List a user's top 3 repositories
                     case 3:
                         await controller.RepoUser(await GetUsername());
                         break;
+                    // Add the number of repositories of the users on the list
                     case 4:
                         await controller.SumAllRepo();
                         break;
+                    // List all users in the list
                     case 5:
                         await controller.ListUsers();
                         break;
+                    // Exit the application
                     case 6:
                         Console.WriteLine("Saindo....");
                         break;
+                    // If the user enters an invalid option
                     default:
                         Console.WriteLine("Opção invalida!");
                         break;
@@ -63,6 +71,7 @@ namespace Consumindo_API_do_github
             }
         }
 
+        // Method to get the username
         public static async Task<string> GetUsername()
         {
             Console.Write("Nome do usuario: ");
